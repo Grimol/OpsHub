@@ -18,9 +18,7 @@ alembic upgrade head
 pytest
 
 # Git Workflow
-
 Ce projet utilise une organisation simple et lisible pour la gestion du code :
-
 - La branche principale est **`main`** → stable, prête à être déployée.
 - Les développements se font sur des branches **`feat/*`** → une fonctionnalité ou un sujet par branche.
 
