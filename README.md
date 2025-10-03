@@ -22,7 +22,7 @@ Ce projet utilise une organisation simple et lisible pour la gestion du code :
 - La branche principale est **`main`** → stable, prête à être déployée.
 - Les développements se font sur des branches **`feat/*`** → une fonctionnalité ou un sujet par branche.
 
-# Cycle de développement
+## Cycle de développement
 
 1. **Créer une nouvelle branche**
     - git checkout -b feat/nom-fonctionnalite
@@ -52,7 +52,7 @@ Ce projet utilise une organisation simple et lisible pour la gestion du code :
     - git branch -d feat/nom-fonctionnalite
     - git push origin --delete feat/nom-fonctionnalite
 
-# **Bonnes pratiques**
+## **Bonnes pratiques**
 - Toujours vérifier que les tests passent avant de merger.
 - Commits petits et thématiques (éviter “fix trucs divers”).
 - Utiliser des branches **`feat/`**, **`fix/`**, **`chore/`**, **`docs/`** selon le type de travail.
