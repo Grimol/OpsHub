@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      SQLITE_PATH: /app/opshub.db  # DB dans le conteneur
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./app:/app/app    # hot-reload du code
+      - ./opshub.db:/app/opshub.db  # persister le fichier SQLite côté host
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
