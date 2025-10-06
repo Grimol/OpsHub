@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from app.db.models import ProjectStatus
+from app.db.enums import ProjectStatus
 
 class ProjectCreate(BaseModel):
     name: str
