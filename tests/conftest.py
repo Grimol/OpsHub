@@ -77,6 +77,11 @@ def db_session(engine):
         yield session
     finally:
         session.close()
+        # Nettoyage automatique de toutes les tables
+        with engine.connect() as conn:
+            for table in reversed(Base.metadata.sorted_tables):
+                conn.execute(table.delete())
+            conn.commit()
 
 
 @pytest.fixture(scope="function")
