@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+
 def test_create_project_ok(client, user_factory):
     owner = user_factory(email="owner1@example.com")
     payload = {
@@ -16,6 +17,7 @@ def test_create_project_ok(client, user_factory):
     assert body["status"] == "active"
     assert body["owner_id"] == owner.id
 
+
 def test_list_projects(client, user_factory):
     # crée 2 projets via l'API
     o = user_factory(email="owner2@example.com")
@@ -30,6 +32,7 @@ def test_list_projects(client, user_factory):
     names = [p["name"] for p in data]
     assert "P1" in names and "P2" in names
 
+
 def test_get_project_ok(client, user_factory):
     o = user_factory(email="owner3@example.com")
     r_create = client.post("/projects", json={"name": "Solo", "owner_id": o.id})
@@ -39,10 +42,12 @@ def test_get_project_ok(client, user_factory):
     assert r.status_code == HTTPStatus.OK
     assert r.json()["name"] == "Solo"
 
+
 def test_get_project_not_found(client):
     r = client.get("/projects/999999")
     assert r.status_code == HTTPStatus.NOT_FOUND
     assert r.json()["detail"] == "Project not found"
+
 
 def test_update_project_ok(client, user_factory):
     o = user_factory(email="owner4@example.com")
@@ -57,10 +62,12 @@ def test_update_project_ok(client, user_factory):
     assert body["description"] == "Maj"
     assert body["status"] == "archived"
 
+
 def test_update_project_not_found(client):
     r = client.put("/projects/424242", json={"name": "X"})
     assert r.status_code == HTTPStatus.NOT_FOUND
     assert r.json()["detail"] == "Project not found"
+
 
 def test_delete_project_ok(client, user_factory):
     o = user_factory(email="owner5@example.com")
@@ -72,6 +79,7 @@ def test_delete_project_ok(client, user_factory):
 
     r2 = client.get(f"/projects/{pid}")
     assert r2.status_code == HTTPStatus.NOT_FOUND
+
 
 def test_delete_project_not_found(client):
     r = client.delete("/projects/111111")

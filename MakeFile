@@ -1,0 +1,60 @@
+# ==========================
+# 🧰 OpsHub - Makefile
+# ==========================
+
+# Variables
+PYTHON=python
+DOCKER_COMPOSE=docker compose
+
+# --------------------------
+# Quality & Tests
+# --------------------------
+lint:
+	ruff check . --fix
+
+format:
+	black .
+
+test:
+	pytest -q
+
+# --------------------------
+# Run local server
+# --------------------------
+run:
+	uvicorn app.main:app --reload
+
+# --------------------------
+# Docker
+# --------------------------
+docker-up:
+	$(DOCKER_COMPOSE) up --build
+
+docker-down:
+	$(DOCKER_COMPOSE) down
+
+# --------------------------
+# Database (Alembic)
+# --------------------------
+migrate:
+	alembic revision --autogenerate -m "auto migration"
+
+upgrade:
+	alembic upgrade head
+
+# --------------------------
+# Meta
+# --------------------------
+check: lint format test
+
+help:
+	@echo Available commands:
+	@echo  make lint          : Run Ruff linter
+	@echo  make format        : Auto-format code with Black
+	@echo  make test          : Run tests with pytest
+	@echo  make run           : Run FastAPI app locally
+	@echo  make docker-up     : Build and run with Docker
+	@echo  make docker-down   : Stop Docker containers
+	@echo  make migrate       : Create new Alembic migration
+	@echo  make upgrade       : Apply Alembic migrations
+	@echo  make check         : Lint + Format-check + Tests
