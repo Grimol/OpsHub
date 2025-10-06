@@ -1,4 +1,10 @@
-![CI](https://github.com/Grimol/OpsHub/actions/workflows/ci.yml/badge.svg?branch=main)
+# 🧰 OpsHub — Backend FastAPI
+
+![CI](https://github.com/<TON_USER>/<TON_REPO>/actions/workflows/ci.yml/badge.svg?branch=main)
+![Lint](https://img.shields.io/badge/Lint-Ruff%20%26%20Black-1E90FF?logo=python&logoColor=white)
+
+API backend modulaire construite avec **FastAPI**, **SQLAlchemy**, et **Alembic**.  
+Qualité garantie par **Ruff**, **Black**, **Pytest**, et un pipeline **CI/CD Render**.
 
 # Activer venv
 .venv/Scripts/activate
