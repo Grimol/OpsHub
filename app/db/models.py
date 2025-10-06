@@ -1,8 +1,11 @@
 from datetime import datetime
-from sqlalchemy import String, Text, ForeignKey, Integer, Boolean, Enum, JSON
+
+from sqlalchemy import JSON, Boolean, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.base import Base
-from app.db.enums import UserRole, ProjectStatus, TicketPriority, TicketStatus
+from app.db.enums import ProjectStatus, TicketPriority, TicketStatus, UserRole
+
 
 class User(Base):
     __tablename__ = "users"
@@ -15,6 +18,7 @@ class User(Base):
 
     projects: Mapped[list["Project"]] = relationship(back_populates="owner")
     tickets_assigned: Mapped[list["Ticket"]] = relationship(back_populates="assignee")
+
 
 class Project(Base):
     __tablename__ = "projects"
@@ -29,13 +33,16 @@ class Project(Base):
     owner: Mapped["User"] = relationship(back_populates="projects")
     tickets: Mapped[list["Ticket"]] = relationship(back_populates="project")
 
+
 class Ticket(Base):
     __tablename__ = "tickets"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"))
     title: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(Text)
-    priority: Mapped[TicketPriority] = mapped_column(Enum(TicketPriority), default=TicketPriority.med)
+    priority: Mapped[TicketPriority] = mapped_column(
+        Enum(TicketPriority), default=TicketPriority.med
+    )
     status: Mapped[TicketStatus] = mapped_column(Enum(TicketStatus), default=TicketStatus.open)
     assignee_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
@@ -43,6 +50,7 @@ class Ticket(Base):
 
     project: Mapped["Project"] = relationship(back_populates="tickets")
     assignee: Mapped["User"] = relationship(back_populates="tickets_assigned")
+
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"

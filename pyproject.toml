@@ -1,0 +1,32 @@
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+include = '\.pyi?$'
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+# Désactive quelques règles bruyantes au début, on durcira plus tard
+lint.select = [
+  "E",   # pycodestyle (errors)
+  "F",   # pyflakes
+  "I",   # isort (tri des imports)
+  "UP",  # pyupgrade
+  "B",   # bugbear (bonnes pratiques)
+]
+lint.ignore = [
+  "E203",  # confus avec Black sur les slices
+  "E501",  # longueur gérée par black, pas par ruff
+  "B008",  # FastAPI Depends() est OK dans les paramètres par défaut
+]
+exclude = [
+  "migrations/versions",
+  ".venv",
+  "__pycache__",
+]
+
+# isort-style: géré par Ruff (I)
+[tool.ruff.lint.isort]
+known-first-party = ["app", "tests"]
+combine-as-imports = true
+force-sort-within-sections = true

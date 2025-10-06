@@ -1,10 +1,13 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
+
 from app.db.enums import UserRole
+
 
 class UserCreate(BaseModel):
     email: EmailStr
     full_name: str
     role: UserRole = UserRole.viewer
+
 
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -12,6 +15,7 @@ class UserRead(BaseModel):
     email: EmailStr
     full_name: str
     role: UserRole
+
 
 class UserUpdate(BaseModel):
     full_name: str | None = None
