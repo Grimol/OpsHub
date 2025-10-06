@@ -24,6 +24,16 @@ from sqlalchemy.orm import sessionmaker
 
 from app.api.deps import get_db
 from app.db.base import Base
+from app.db.models import (
+    AuditLog,
+    Project,
+    ProjectStatus,
+    Ticket,
+    TicketPriority,
+    TicketStatus,
+    User,
+    UserRole,
+)
 from app.main import app
 
 
@@ -102,7 +112,6 @@ def user_factory(db_session):
         user = user_factory()  # Utilisateur avec email aléatoire
         user = user_factory(email="test@example.com", full_name="Test User")
     """
-    from app.db.models import User, UserRole
 
     def _create_user(email=None, full_name="Test User", role=UserRole.viewer):
         if email is None:
@@ -115,3 +124,74 @@ def user_factory(db_session):
         return user
 
     return _create_user
+
+
+@pytest.fixture
+def project_factory(db_session):
+    """Factory pour créer des projets de test."""
+
+    def _create_project(**kwargs):
+        defaults = {
+            "name": "Test Project",
+            "description": "Test description",
+            "status": ProjectStatus.active,
+        }
+        defaults.update(kwargs)
+        project = Project(**defaults)
+        db_session.add(project)
+        db_session.commit()
+        db_session.refresh(project)
+        return project
+
+    return _create_project
+
+
+@pytest.fixture
+def ticket_factory(db_session, user_factory, project_factory):
+    """Factory pour créer des tickets de test."""
+
+    def _create_ticket(**kwargs):
+        # Créer les dépendances si pas fournies
+        if "project_id" not in kwargs:
+            project = project_factory()
+            kwargs["project_id"] = project.id
+
+        if "assignee_id" not in kwargs:
+            user = user_factory()
+            kwargs["assignee_id"] = user.id
+
+        defaults = {
+            "title": "Test Ticket",
+            "description": "Test description",
+            "priority": TicketPriority.med,
+            "status": TicketStatus.open,
+        }
+        defaults.update(kwargs)
+        ticket = Ticket(**defaults)
+        db_session.add(ticket)
+        db_session.commit()
+        db_session.refresh(ticket)
+        return ticket
+
+    return _create_ticket
+
+
+@pytest.fixture
+def audit_log_factory(db_session):
+    """Factory pour créer des logs d'audit de test."""
+
+    def _create_audit_log(**kwargs):
+        defaults = {
+            "action": "CREATE",
+            "table_name": "test_table",
+            "record_id": 1,
+            "payload": {"test": "data"},
+        }
+        defaults.update(kwargs)
+        audit_log = AuditLog(**defaults)
+        db_session.add(audit_log)
+        db_session.commit()
+        db_session.refresh(audit_log)
+        return audit_log
+
+    return _create_audit_log
