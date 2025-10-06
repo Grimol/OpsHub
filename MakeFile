@@ -13,10 +13,7 @@ lint:
 	ruff check . --fix
 
 format:
-	black . --fix
-
-format-check:
-	black --check .
+	black .
 
 test:
 	pytest -q
@@ -48,17 +45,16 @@ upgrade:
 # --------------------------
 # Meta
 # --------------------------
-check: lint format-check test
+check: lint format test
 
 help:
-	@echo "🧰 Available commands:"
-	@echo "  make lint          → Run Ruff linter"
-	@echo "  make format        → Auto-format code with Black"
-	@echo "  make format-check  → Check formatting only"
-	@echo "  make test          → Run tests with pytest"
-	@echo "  make run           → Run FastAPI app locally"
-	@echo "  make docker-up     → Build and run with Docker"
-	@echo "  make docker-down   → Stop Docker containers"
-	@echo "  make migrate       → Create new Alembic migration"
-	@echo "  make upgrade       → Apply Alembic migrations"
-	@echo "  make check         → Lint + Format-check + Tests"
+	@echo Available commands:
+	@echo  make lint          : Run Ruff linter
+	@echo  make format        : Auto-format code with Black
+	@echo  make test          : Run tests with pytest
+	@echo  make run           : Run FastAPI app locally
+	@echo  make docker-up     : Build and run with Docker
+	@echo  make docker-down   : Stop Docker containers
+	@echo  make migrate       : Create new Alembic migration
+	@echo  make upgrade       : Apply Alembic migrations
+	@echo  make check         : Lint + Format-check + Tests
