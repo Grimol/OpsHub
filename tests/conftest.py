@@ -23,17 +23,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.api.deps import get_db
+from app.core.security import get_password_hash
 from app.db.base import Base
-from app.db.models import (
-    AuditLog,
-    Project,
-    ProjectStatus,
-    Ticket,
-    TicketPriority,
-    TicketStatus,
-    User,
-    UserRole,
-)
+from app.db.enums import ProjectStatus, TicketPriority, TicketStatus, UserRole
+from app.db.models import AuditLog, Project, Ticket, User
 from app.main import app
 
 
@@ -109,6 +102,22 @@ def client(db_session):
 
 
 @pytest.fixture
+def auth_headers(client, user_factory):
+    """Helper pour créer des headers d'authentification."""
+
+    def _create_auth(role=UserRole.admin, email=None, password="testpass"):
+        email = email or f"user_{uuid.uuid4().hex[:8]}@example.com"
+        user = user_factory(email=email, role=role, password=password)
+
+        login_response = client.post("/auth/login", json={"email": email, "password": password})
+        token = login_response.json()["access_token"]
+
+        return {"Authorization": f"Bearer {token}"}, user
+
+    return _create_auth
+
+
+@pytest.fixture
 def user_factory(db_session):
     """
     Factory pour créer facilement des utilisateurs de test.
@@ -116,13 +125,27 @@ def user_factory(db_session):
     Usage:
         user = user_factory()  # Utilisateur avec email aléatoire
         user = user_factory(email="test@example.com", full_name="Test User")
+        user = user_factory(email="test@example.com", full_name="Test User", role=UserRole.admin, password="password")
     """
 
-    def _create_user(email=None, full_name="Test User", role=UserRole.viewer):
+    def _create_user(
+        email: str | None = None,
+        full_name="Test User",
+        role=UserRole.viewer,
+        password: str | None = None,
+        is_active: bool = True,
+    ):
         if email is None:
             email = f"user_{uuid.uuid4().hex[:8]}@example.com"
 
-        user = User(email=email, full_name=full_name, role=role)
+        user = User(
+            email=email,
+            full_name=full_name,
+            role=role,
+            is_active=is_active,
+            password_hash=get_password_hash(password or "default123"),
+        )
+
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)

@@ -3,7 +3,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_db, require_roles
+from app.db.enums import UserRole
 from app.db.models import Project
 from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
 
@@ -11,7 +12,11 @@ router = APIRouter()
 
 
 @router.post("", response_model=ProjectRead, status_code=201)
-def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
+def create_project(
+    payload: ProjectCreate,
+    db: Session = Depends(get_db),
+    _=Depends(require_roles(UserRole.manager, UserRole.admin)),
+):
     proj = Project(
         name=payload.name,
         description=payload.description,
@@ -27,7 +32,10 @@ def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[ProjectRead])
-def list_projects(db: Session = Depends(get_db)):
+def list_projects(
+    db: Session = Depends(get_db),
+    _=Depends(require_roles(UserRole.manager, UserRole.admin)),
+):
     return db.query(Project).order_by(Project.id).all()
 
 
