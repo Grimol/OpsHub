@@ -1,16 +1,20 @@
 from http import HTTPStatus
 
+from app.db.enums import UserRole
 
-def test_create_project_ok(client, user_factory):
-    owner = user_factory(email="owner1@example.com")
+
+def test_create_project_ok(client, auth_headers):
+    headers, owner = auth_headers(role=UserRole.admin)
+
     payload = {
         "name": "Alpha",
         "description": "Premier projet",
         "status": "active",
         "owner_id": owner.id,
     }
-    r = client.post("/projects", json=payload)
+    r = client.post("/projects", json=payload, headers=headers)
     assert r.status_code == HTTPStatus.CREATED, r.text
+
     body = r.json()
     assert body["name"] == "Alpha"
     assert body["description"] == "Premier projet"
@@ -18,25 +22,40 @@ def test_create_project_ok(client, user_factory):
     assert body["owner_id"] == owner.id
 
 
-def test_list_projects(client, user_factory):
-    # crée 2 projets via l'API
-    o = user_factory(email="owner2@example.com")
-    client.post("/projects", json={"name": "P1", "owner_id": o.id})
-    client.post("/projects", json={"name": "P2", "owner_id": o.id})
+def test_list_projects(client, auth_headers):
+    headers, owner = auth_headers(role=UserRole.admin)
 
-    r = client.get("/projects")
+    payload1 = {
+        "name": "Alpha",
+        "description": "Premier projet",
+        "status": "active",
+        "owner_id": owner.id,
+    }
+
+    payload2 = {
+        "name": "Beta",
+        "description": "Second projet",
+        "status": "active",
+        "owner_id": owner.id,
+    }
+
+    client.post("/projects", json=payload1, headers=headers)
+    client.post("/projects", json=payload2, headers=headers)
+
+    r = client.get("/projects", headers=headers)
+    print(r)
     assert r.status_code == HTTPStatus.OK
     data = r.json()
     assert isinstance(data, list)
     assert len(data) >= 2
     names = [p["name"] for p in data]
-    assert "P1" in names and "P2" in names
+    assert "Alpha" in names and "Beta" in names
 
 
-def test_get_project_ok(client, user_factory):
+def test_get_project_ok(client, user_factory, project_factory):
     o = user_factory(email="owner3@example.com")
-    r_create = client.post("/projects", json={"name": "Solo", "owner_id": o.id})
-    pid = r_create.json()["id"]
+    r_create = project_factory(name="Solo", owner_id=o.id)
+    pid = r_create.id
 
     r = client.get(f"/projects/{pid}")
     assert r.status_code == HTTPStatus.OK
@@ -49,10 +68,10 @@ def test_get_project_not_found(client):
     assert r.json()["detail"] == "Project not found"
 
 
-def test_update_project_ok(client, user_factory):
+def test_update_project_ok(client, user_factory, project_factory):
     o = user_factory(email="owner4@example.com")
-    r_create = client.post("/projects", json={"name": "Old", "owner_id": o.id})
-    pid = r_create.json()["id"]
+    r_create = project_factory(name="Old", owner_id=o.id)
+    pid = r_create.id
 
     payload = {"name": "New", "description": "Maj", "status": "archived"}
     r = client.put(f"/projects/{pid}", json=payload)
@@ -69,10 +88,10 @@ def test_update_project_not_found(client):
     assert r.json()["detail"] == "Project not found"
 
 
-def test_delete_project_ok(client, user_factory):
+def test_delete_project_ok(client, user_factory, project_factory):
     o = user_factory(email="owner5@example.com")
-    r_create = client.post("/projects", json={"name": "Del", "owner_id": o.id})
-    pid = r_create.json()["id"]
+    r_create = project_factory(name="Del", owner_id=o.id)
+    pid = r_create.id
 
     r = client.delete(f"/projects/{pid}")
     assert r.status_code == HTTPStatus.NO_CONTENT

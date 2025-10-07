@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 
-from app.api.v1 import audit_logs, projects, tickets, users
+from app.api.v1 import audit_logs, auth, projects, tickets, users
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title="OpsHub", version="1.0.0")
+    app.include_router(auth.router, prefix="/auth", tags=["auth"])
     app.include_router(users.router, prefix="/users", tags=["users"])
     app.include_router(projects.router, prefix="/projects", tags=["projects"])
     app.include_router(tickets.router, prefix="/api/v1/tickets", tags=["tickets"])

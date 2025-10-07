@@ -12,9 +12,10 @@ class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     full_name: Mapped[str] = mapped_column(String(255))
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.viewer)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     projects: Mapped[list["Project"]] = relationship(back_populates="owner")
     tickets_assigned: Mapped[list["Ticket"]] = relationship(back_populates="assignee")
