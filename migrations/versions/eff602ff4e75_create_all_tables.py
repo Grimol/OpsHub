@@ -1,8 +1,8 @@
-"""init schema
+"""Create all tables
 
-Revision ID: 06b313ac9023
-Revises:
-Create Date: 2025-10-01 15:52:22.988672
+Revision ID: eff602ff4e75
+Revises: c727c7afd83b
+Create Date: 2025-10-09 15:50:14.777323
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "06b313ac9023"
-down_revision: Union[str, Sequence[str], None] = None
+revision: str = "eff602ff4e75"
+down_revision: Union[str, Sequence[str], None] = "c727c7afd83b"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -27,25 +27,26 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("email", sa.String(length=255), nullable=False),
         sa.Column("full_name", sa.String(length=255), nullable=False),
-        sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column(
             "role", sa.Enum("admin", "manager", "agent", "viewer", name="userrole"), nullable=False
         ),
         sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("password_hash", sa.String(length=255), nullable=False),
+        sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
     op.create_table(
         "audit_logs",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("actor_id", sa.Integer(), nullable=True),
         sa.Column("action", sa.String(length=255), nullable=False),
-        sa.Column("target_type", sa.String(length=50), nullable=False),
-        sa.Column("target_id", sa.Integer(), nullable=True),
+        sa.Column("table_name", sa.String(length=255), nullable=False),
+        sa.Column("record_id", sa.Integer(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=True),
         sa.Column("payload", sa.JSON(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["actor_id"],
+            ["user_id"],
             ["users.id"],
         ),
         sa.PrimaryKeyConstraint("id"),

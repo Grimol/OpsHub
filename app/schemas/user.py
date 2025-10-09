@@ -7,6 +7,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     full_name: str
     role: UserRole = UserRole.viewer
+    password: str
 
 
 class UserRead(BaseModel):

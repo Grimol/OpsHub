@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
+from app.core.security import hash_password
 from app.db.models import User
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 
@@ -12,7 +13,13 @@ router = APIRouter()
 def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == payload.email).first():
         raise HTTPException(status_code=409, detail="Email already exists")
-    user = User(email=payload.email, full_name=payload.full_name, role=payload.role)
+    hashed_password = hash_password(payload.password)  # Implémentez cette fonction de hachage
+    user = User(
+        email=payload.email,
+        full_name=payload.full_name,
+        role=payload.role,
+        password_hash=hashed_password,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)

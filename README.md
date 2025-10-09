@@ -47,6 +47,7 @@ Ce projet utilise une organisation simple et lisible pour la gestion du code :
     Exemple :
         - git add .
         - git commit -m "feat: add CRUD endpoints for projects"
+        - git push --set-upstream origin feat/nom-fonctionnalite
 
 4. **Fusionner dans **`main`** après validation**
     - git checkout main
